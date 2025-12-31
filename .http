@@ -1,0 +1,105 @@
+### Variables
+@baseUrl = http://localhost:3000
+@contentType = application/json
+
+### Health check
+GET {{baseUrl}}
+
+### Get ALL tasks
+# @name getAllTasks
+GET {{baseUrl}}/tasks
+
+### Get ALL tasks ith paginatioon and offset
+# @name getAllPaginatedTasks
+GET {{baseUrl}}/tasks?limit=2&offset=2
+
+### Get ALL IN_PROGRESS tasks
+# @name getAllInProgressTasks
+GET {{baseUrl}}/tasks?status=IN_PROGRESS
+
+### Get ALL with search query
+# @name getAllWithSearch
+GET {{baseUrl}}/tasks?search=tho
+
+### Get ALL filtered by labels
+# @name getAllFilteredByLabels
+GET {{baseUrl}}/tasks?labels=urgent,bug
+
+### Get ALL sorted
+# @name getAllFilteredBySortAndOrder
+GET {{baseUrl}}/tasks?sortBy=title&sortOrder=DESC
+
+### Get one task
+GET {{baseUrl}}/tasks/{{taskId}}
+
+### Create new task
+# @name createTask
+POST {{baseUrl}}/tasks
+Content-Type: {{contentType}}
+
+{
+  "title": "xxx",
+  "description": "Complete the TypeORM course",
+  "status": "OPEN",
+  "userId": "4ecc6dd4-3dcc-4e0a-b23b-c97d6e07a0cb",
+  "labels": [{ "name": "urgent"}]
+}
+
+> {%
+  // Extract the ID from response and store globally
+  client.global.set("taskId", response.body.id);
+  console.log("✅ Task created. ID set:", response.body.id);
+%}
+
+### Validation error - status is incorrect
+POST {{baseUrl}}/tasks
+Content-Type: {{contentType}}
+
+{
+  "description": "Complete the NestJS course",
+  "status": "XXX"
+}
+
+### Update the task status
+PATCH {{baseUrl}}/tasks/{{taskId}}
+Content-Type: {{contentType}}
+
+{
+  "status": "IN_PROGRESS",
+  "labels": [{ "name": "in-progress" }]
+}
+
+> {%
+  console.log("✅ Task update request completed for:", client.global.get("taskId"));
+%}
+
+### Delete a task
+DELETE {{baseUrl}}/tasks/{{taskId}}
+Content-Type: {{contentType}}
+
+> {%
+  console.log("✅ Delete request completed for:", client.global.get("taskId"));
+%}
+
+### Add specific labels to task
+# @name addLabels
+POST {{baseUrl}}/tasks/{{taskId}}/labels
+Content-Type: {{contentType}}
+
+[
+ { "name": "high priority" },
+ { "name": "bug" }
+]
+> {%
+  console.log("✅ Add Labels request completed for:", client.global.get("taskId"));
+%}
+
+### Remove specific labels from task
+# @name removeLabels
+DELETE {{baseUrl}}/tasks/{{taskId}}/labels
+Content-Type: {{contentType}}
+
+["high priority", "bug"]
+> {%
+  console.log("✅ Remove Labels request completed for:", client.global.get("taskId"));
+%}
